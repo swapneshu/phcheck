@@ -3,144 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart pH Analyzer</title>
+    <title>PH Testing and Analysis</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f9;
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
             text-align: center;
         }
-        .header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px 0;
-        }
-        .container {
-            max-width: 700px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-        }
-        .file-upload {
-            border: 2px dashed #4CAF50;
-            border-radius: 8px;
-            padding: 20px;
-            cursor: pointer;
-            margin: 20px 0;
-        }
-        .file-upload:hover {
-            background-color: #e8f5e9;
-        }
         select, button {
-            margin: 10px 0;
+            margin: 10px;
             padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: 100%;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
         }
         .result {
             margin-top: 20px;
+            text-align: center;
+        }
+        #test-result {
+            font-size: 20px;
+            color: #4CAF50;
+        }
+        #upload-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #file-upload {
             padding: 10px;
-            background-color: #f9fbe7;
-            border: 1px solid #c5e1a5;
-            border-radius: 8px;
+        }
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Smart pH Analyzer</h1>
-        <p>Upload your indicator image, select the test type, and get results instantly!</p>
-    </div>
-    <div class="container">
-        <div class="file-upload" onclick="document.getElementById('imageInput').click();">
-            <p>Click here to upload or drag and drop your image.</p>
-        </div>
-        <input type="file" id="imageInput" accept="image/*" style="display: none;" onchange="previewImage()">
-        <select id="testType">
-            <option value="" disabled selected>Select the type of test</option>
-            <option value="urine">Urine Infection Test</option>
-            <option value="menstruation">Menstruation Infection Test</option>
-            <option value="water">Water Potability Test</option>
-            <option value="soil">Soil Classification</option>
-            <option value="food">Food or Detergent Test</option>
+    <header>
+        <h1>Welcome to PH Testing and Analysis</h1>
+        <p>Choose a test from the menu below</p>
+    </header>
+    
+    <div style="text-align:center;">
+        <label for="test-selection">Select Test:</label>
+        <select id="test-selection" onchange="showTestOptions()">
+            <option value="">Select Test Category</option>
+            <option value="ph">PH Test</option>
+            <option value="health">Health Tests</option>
+            <option value="household">Household Utilities</option>
+            <option value="agriculture">Agriculture</option>
         </select>
-        <button onclick="analyzeImage()">Analyze</button>
-        <div id="result" class="result" style="display: none;">
-            <h3>Result</h3>
-            <p id="rgb-values"></p>
-            <p id="analysis-result"></p>
-        </div>
     </div>
+
+    <!-- Second Menu (appears after selecting the first one) -->
+    <div id="test-options" style="text-align:center; display:none;">
+        <label for="specific-test">Select Specific Test:</label>
+        <select id="specific-test">
+            <!-- Options will be added dynamically based on the first menu selection -->
+        </select>
+    </div>
+
+    <!-- Upload Section -->
+    <div id="upload-section" style="display:none;">
+        <h3>Upload Your PH Strip Image:</h3>
+        <input type="file" id="file-upload" accept="image/*">
+        <button onclick="uploadImage()">Upload Image</button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="test-result" class="result"></div>
+
+    <!-- Download Section -->
+    <div id="download-section" style="text-align:center; display:none;">
+        <button class="download-btn" onclick="downloadResult()">Download Result</button>
+    </div>
+
     <script>
-        let uploadedImage = null;
-        function previewImage() {
-            const fileInput = document.getElementById('imageInput');
-            if (fileInput.files.length === 0) {
-                alert('Please upload an image.');
-                return;
+        // Function to handle selection of the test category
+        function showTestOptions() {
+            var testCategory = document.getElementById("test-selection").value;
+            var options = document.getElementById("specific-test");
+            var testOptionsDiv = document.getElementById("test-options");
+            var uploadSection = document.getElementById("upload-section");
+            
+            testOptionsDiv.style.display = 'block';
+            uploadSection.style.display = 'block';
+            
+            // Clear existing options
+            options.innerHTML = '';
+
+            if (testCategory === 'ph') {
+                var option1 = document.createElement("option");
+                option1.text = "PH Test";
+                option1.value = "ph-test";
+                options.add(option1);
+            } else if (testCategory === 'health') {
+                var option1 = document.createElement("option");
+                option1.text = "Urine Infection Test";
+                option1.value = "urine-infection";
+                options.add(option1);
+                var option2 = document.createElement("option");
+                option2.text = "Menstrual Infection Test";
+                option2.value = "menstrual-infection";
+                options.add(option2);
+            } else if (testCategory === 'household') {
+                var option1 = document.createElement("option");
+                option1.text = "Soap Test";
+                option1.value = "soap-test";
+                options.add(option1);
+                var option2 = document.createElement("option");
+                option2.text = "Shampoo Test";
+                option2.value = "shampoo-test";
+                options.add(option2);
+            } else if (testCategory === 'agriculture') {
+                var option1 = document.createElement("option");
+                option1.text = "Soil PH Test";
+                option1.value = "soil-ph";
+                options.add(option1);
+                var option2 = document.createElement("option");
+                option2.text = "Water PH Test";
+                option2.value = "water-ph";
+                options.add(option2);
             }
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                uploadedImage = event.target.result;
-                alert('Image uploaded successfully!');
-            };
-            reader.readAsDataURL(fileInput.files[0]);
         }
-        function analyzeImage() {
-            const testType = document.getElementById('testType').value;
-            if (!uploadedImage) {
-                alert('Please upload an image first.');
+
+        // Function to upload and process the image
+        function uploadImage() {
+            var fileInput = document.getElementById('file-upload');
+            var file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file.");
                 return;
             }
-            if (!testType) {
-                alert('Please select a test type.');
-                return;
-            }
-            const dummyRGB = [120, 100, 200]; // Simulated RGB values for demonstration
-            const result = getAnalysis(dummyRGB, testType);
-            document.getElementById('rgb-values').innerText = `RGB Values: (${dummyRGB[0]}, ${dummyRGB[1]}, ${dummyRGB[2]})`;
-            document.getElementById('analysis-result').innerText = result;
-            document.getElementById('result').style.display = 'block';
+
+            var formData = new FormData();
+            formData.append('file', file);
+
+            // Send the image to the Flask backend using AJAX
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.predicted_ph) {
+                    document.getElementById('test-result').innerHTML = `<h2>Predicted PH Value: ${data.predicted_ph}</h2>`;
+                    document.getElementById('download-section').style.display = 'block';  // Show download button
+                } else {
+                    document.getElementById('test-result').innerHTML = `<h2>Error: Could not predict PH value</h2>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('test-result').innerHTML = `<h2>Error: ${error}</h2>`;
+            });
         }
-        function getAnalysis(rgb, testType) {
-            const [r, g, b] = rgb;
-            if (testType === "urine") {
-                if (r > 150) return "Infection detected in urine!";
-                return "Urine is healthy.";
-            }
-            if (testType === "menstruation") {
-                if (g > 120) return "Menstrual infection detected!";
-                return "No infection during menstruation.";
-            }
-            if (testType === "water") {
-                if (b > 180) return "Water is drinkable.";
-                return "Water is not drinkable.";
-            }
-            if (testType === "soil") {
-                if (r < 100) return "Soil is acidic.";
-                if (b > 150) return "Soil is alkaline.";
-                return "Soil is neutral.";
-            }
-            if (testType === "food") {
-                if (r > 200) return "High acidity in food!";
-                if (b > 200) return "Food/detergent is alkaline.";
-                return "Food is neutral.";
-            }
-            return "Unknown test type.";
+
+        // Function to generate the PDF for download
+        function downloadResult() {
+            var doc = new jsPDF();
+            var resultText = document.getElementById('test-result').innerText;
+            doc.text(resultText, 10, 10);
+            doc.save('PH-Test-Result.pdf');
         }
     </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
